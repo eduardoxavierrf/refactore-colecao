@@ -5,12 +5,11 @@ import {
     TableForeignKey,
 } from 'typeorm';
 
-export default class CreateCollection1599064492191
-    implements MigrationInterface {
+export default class CreateCategory1599140057148 implements MigrationInterface {
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.createTable(
             new Table({
-                name: 'collections',
+                name: 'categories',
                 columns: [
                     {
                         name: 'id',
@@ -26,34 +25,16 @@ export default class CreateCollection1599064492191
                     {
                         name: 'description',
                         type: 'varchar',
-                    },
-                    {
-                        name: 'image_url',
-                        type: 'varchar',
                         isNullable: true,
                     },
                     {
-                        name: 'color',
-                        type: 'varchar',
-                    },
-                    {
-                        name: 'count_collection',
-                        type: 'boolean',
-                        default: true,
-                    },
-                    {
-                        name: 'count_categories',
-                        type: 'boolean',
-                        default: true,
-                    },
-                    {
-                        name: 'order_alphabetically',
-                        type: 'boolean',
-                        default: false,
-                    },
-                    {
-                        name: 'created_by',
+                        name: 'collection_id',
                         type: 'uuid',
+                    },
+                    {
+                        name: 'supercategory_id',
+                        type: 'uuid',
+                        isNullable: true,
                     },
                     {
                         name: 'created_at',
@@ -71,12 +52,24 @@ export default class CreateCollection1599064492191
         );
 
         await queryRunner.createForeignKey(
-            'collections',
+            'categories',
             new TableForeignKey({
-                name: 'CollectionsUser',
-                columnNames: ['created_by'],
+                name: 'SubCategory',
+                columnNames: ['supercategory_id'],
                 referencedColumnNames: ['id'],
-                referencedTableName: 'users',
+                referencedTableName: 'categories',
+                onDelete: 'CASCADE',
+                onUpdate: 'CASCADE',
+            }),
+        );
+
+        await queryRunner.createForeignKey(
+            'categories',
+            new TableForeignKey({
+                name: 'CategoryCollection',
+                columnNames: ['collection_id'],
+                referencedColumnNames: ['id'],
+                referencedTableName: 'collections',
                 onDelete: 'CASCADE',
                 onUpdate: 'CASCADE',
             }),
@@ -84,7 +77,8 @@ export default class CreateCollection1599064492191
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.dropForeignKey('collections', 'CollectionsUser');
-        await queryRunner.dropTable('collections');
+        await queryRunner.dropForeignKey('categories', 'CategoryCollection');
+        await queryRunner.dropForeignKey('categories', 'SubCategory');
+        await queryRunner.dropTable('categories');
     }
 }

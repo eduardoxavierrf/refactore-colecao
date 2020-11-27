@@ -1,10 +1,10 @@
 import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
-export default class CreateUser1598900555051 implements MigrationInterface {
+export default class CreateItem1599171702795 implements MigrationInterface {
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.createTable(
             new Table({
-                name: 'users',
+                name: 'items',
                 columns: [
                     {
                         name: 'id',
@@ -16,35 +16,26 @@ export default class CreateUser1598900555051 implements MigrationInterface {
                     {
                         name: 'name',
                         type: 'varchar',
-                        isNullable: false,
-                    },
-                    {
-                        name: 'email',
-                        type: 'varchar',
-                        isUnique: true,
                     },
                     {
                         name: 'image_url',
                         type: 'varchar',
+                    },
+                    {
+                        name: 'category_id',
+                        type: 'uuid',
                         isNullable: true,
                     },
                     {
-                        name: 'count_items',
-                        type: 'boolean',
-                        default: true,
+                        name: 'collection_id',
+                        type: 'uuid',
                     },
                     {
-                        name: 'count_collections',
-                        type: 'boolean',
-                        default: true,
+                        name: 'metadata',
+                        type: 'varchar',
                     },
                     {
-                        name: 'count_categories',
-                        type: 'boolean',
-                        default: true,
-                    },
-                    {
-                        name: 'password',
+                        name: 'description',
                         type: 'varchar',
                     },
                     {
@@ -59,11 +50,31 @@ export default class CreateUser1598900555051 implements MigrationInterface {
                         isNullable: true,
                     },
                 ],
+                foreignKeys: [
+                    {
+                        name: 'ItemCollection',
+                        columnNames: ['collection_id'],
+                        referencedColumnNames: ['id'],
+                        referencedTableName: 'collections',
+                        onDelete: 'CASCADE',
+                        onUpdate: 'CASCADE',
+                    },
+                    {
+                        name: 'ItemCategory',
+                        columnNames: ['category_id'],
+                        referencedColumnNames: ['id'],
+                        referencedTableName: 'categories',
+                        onDelete: 'CASCADE',
+                        onUpdate: 'CASCADE',
+                    },
+                ],
             }),
         );
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.dropTable('users');
+        await queryRunner.dropForeignKey('items', 'ItemCategory');
+        await queryRunner.dropForeignKey('items', 'ItemCollection');
+        await queryRunner.dropTable('items');
     }
 }

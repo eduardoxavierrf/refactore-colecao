@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import { getRepository } from 'typeorm';
 import { hash } from 'bcryptjs';
 
@@ -10,10 +11,23 @@ interface Request {
     email: string;
 
     password: string;
+
+    count_items: boolean;
+
+    count_collections: boolean;
+
+    count_categories: boolean;
 }
 
 class CreateUserService {
-    public async execute({ name, email, password }: Request): Promise<User> {
+    public async execute({
+        name,
+        email,
+        password,
+        count_collections,
+        count_categories,
+        count_items,
+    }: Request): Promise<User> {
         const userRepository = getRepository(User);
 
         const checkUserExist = await userRepository.findOne({
@@ -30,10 +44,14 @@ class CreateUserService {
             name,
             email,
             password: hashedPassword,
+            count_collections,
+            count_categories,
+            count_items,
         });
 
         await userRepository.save(user);
 
+        delete user.password;
         return user;
     }
 }
